@@ -1,39 +1,51 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TextField, Button, Box, Typography } from '@mui/material';
-import { Logo } from '../components/Logo';
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle password reset logic here
     console.log({ email });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-navy-900 to-purple-900 flex">
-      {/* Left side with logo and message */}
+    <div
+      className="min-h-screen bg-cover bg-center flex"
+      style={{ backgroundImage: 'url(/Forgot_password.png)' }}
+    >
       <div className="flex-1 flex flex-col justify-center items-center p-12">
-        <Logo />
-        <Typography variant="h2" className="text-white mt-8 mb-4">
-          No Worries.!!
-        </Typography>
+        <Typography variant="h2" className="text-white mt-8 mb-4"></Typography>
         <Link
           to="/login"
-          className="text-white border border-white px-6 py-2 rounded hover:bg-white/10 transition-colors"
+          className="text-white border border-white px-6 py-4 rounded hover:bg-white/10 transition-colors"
+          style={{
+            position: 'absolute',
+            top: '620px',
+            left: '215px',
+            fontSize: '30px',
+            fontWeight: '500',
+            textAlign: 'center',
+          }}
         >
           Take me back.!
         </Link>
       </div>
 
-      {/* Right side with reset form */}
       <div className="flex-1 flex items-center justify-center">
         <Box
           component="form"
           onSubmit={handleSubmit}
-          className="bg-white/10 backdrop-blur-lg p-8 rounded-lg w-96"
+          className="p-8 rounded-lg w-96"
+          sx={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid white',
+            boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+            fontFamily: 'Roboto, sans-serif',
+            fontWeight: 400,
+          }}
         >
           <Typography variant="h4" className="text-white mb-6">
             Forgot Password ?
@@ -45,11 +57,13 @@ export const ForgotPassword = () => {
 
           <TextField
             fullWidth
+            required
             label="Email address"
             variant="outlined"
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            defaultValue="JhonDoe"
             sx={{
               '& .MuiOutlinedInput-root': {
                 color: 'white',
@@ -73,10 +87,13 @@ export const ForgotPassword = () => {
             sx={{
               mt: 3,
               mb: 2,
-              bgcolor: 'rgb(147, 197, 253)',
+              bgcolor: '#90CAF9',
+              color: 'black',
               '&:hover': {
-                bgcolor: 'rgb(96, 165, 250)',
+                bgcolor: '#64B5F6',
               },
+              fontFamily: 'Roboto, sans-serif',
+              fontWeight: 400,
             }}
           >
             RESET PASSWORD

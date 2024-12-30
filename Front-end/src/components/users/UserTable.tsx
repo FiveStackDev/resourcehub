@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,14 +8,15 @@ import {
   TableRow,
   Paper,
   Checkbox,
-  IconButton,
   TablePagination,
   Button,
-} from '@mui/material';
-import { Pencil, Trash2 } from 'lucide-react';
-import { User } from '../../pages/Users';
-import { EditUserDialog } from './EditUserDialog';
-import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+  Tooltip,
+} from "@mui/material";
+import { Pencil, Trash2 } from "lucide-react";
+import { User } from "../../pages/Users";
+import { EditUserDialog } from "./EditUserDialog";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 
 interface UserTableProps {
   users: User[];
@@ -23,16 +24,22 @@ interface UserTableProps {
   onDeleteUsers: (userIds: string[]) => void;
 }
 
-export const UserTable = ({ users, onEditUser, onDeleteUsers }: UserTableProps) => {
+export const UserTable = ({
+  users,
+  onEditUser,
+  onDeleteUsers,
+}: UserTableProps) => {
   const [selected, setSelected] = useState<string[]>([]);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortColumn, setSortColumn] = useState<"email" | "userType" | "additionalDetails">("email");
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      setSelected(users.map(user => user.id));
+      setSelected(users.map((user) => user.id));
     } else {
       setSelected([]);
     }
@@ -45,7 +52,7 @@ export const UserTable = ({ users, onEditUser, onDeleteUsers }: UserTableProps) 
     if (selectedIndex === -1) {
       newSelected = [...selected, id];
     } else {
-      newSelected = selected.filter(item => item !== id);
+      newSelected = selected.filter((item) => item !== id);
     }
 
     setSelected(newSelected);
@@ -57,13 +64,32 @@ export const UserTable = ({ users, onEditUser, onDeleteUsers }: UserTableProps) 
     setIsDeleteDialogOpen(false);
   };
 
+  // Sorting function
+  const handleSort = (column: "email" | "userType" | "additionalDetails") => {
+    const isSameColumn = column === sortColumn;
+    const newSortDirection = isSameColumn && sortDirection === "asc" ? "desc" : "asc";
+
+    setSortColumn(column);
+    setSortDirection(newSortDirection);
+  };
+
+  // Sort the users based on the selected column and direction
+  const sortedUsers = [...users].sort((a, b) => {
+    const aValue = a[sortColumn as keyof User];
+    const bValue = b[sortColumn as keyof User];
+
+    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+
   return (
     <>
       <Paper className="relative">
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow style={{ backgroundColor: "#e0e0e0", color: "#333" }}>
                 <TableCell padding="checkbox">
                   <Checkbox
                     checked={users.length > 0 && selected.length === users.length}
@@ -71,17 +97,42 @@ export const UserTable = ({ users, onEditUser, onDeleteUsers }: UserTableProps) 
                     onChange={handleSelectAll}
                   />
                 </TableCell>
-                <TableCell>User</TableCell>
-                <TableCell>User Type</TableCell>
-                <TableCell>Additional Details</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                {/* Add sorting to the User column */}
+                <TableCell onClick={() => handleSort("email")}>
+                  User
+                  {sortColumn === "email" && (
+                    <span>{sortDirection === "asc" ? <ArrowUpward /> : <ArrowDownward />}</span>
+                  )}
+                </TableCell>
+                {/* Add sorting to the User Type column */}
+                <TableCell onClick={() => handleSort("userType")}>
+                  User Type
+                  {sortColumn === "userType" && (
+                    <span>{sortDirection === "asc" ? <ArrowUpward /> : <ArrowDownward />}</span>
+                  )}
+                </TableCell>
+                {/* Add sorting to the Additional Details column */}
+                <TableCell onClick={() => handleSort("additionalDetails")}>
+                  Additional Details
+                  {sortColumn === "additionalDetails" && (
+                    <span>{sortDirection === "asc" ? <ArrowUpward /> : <ArrowDownward />}</span>
+                  )}
+                </TableCell>
+                <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {users
+              {sortedUsers
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map(user => (
-                  <TableRow key={user.id} hover>
+                .map((user) => (
+                  <TableRow
+                    key={user.id}
+                    hover
+                    style={{
+                      backgroundColor: selected.includes(user.id) ? "#c6e2f3" : "#fff", // Lighter hover effect with a darker selected background
+                      borderBottom: "1px solid #e0e0e0", // Soft borders
+                    }}
+                  >
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={selected.includes(user.id)}
@@ -99,34 +150,49 @@ export const UserTable = ({ users, onEditUser, onDeleteUsers }: UserTableProps) 
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-sm ${
-                        user.userType === 'Admin' 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-sm ${user.userType === "Admin"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-gray-100 text-gray-800"
+                          }`}
+                      >
                         {user.userType}
                       </span>
                     </TableCell>
                     <TableCell>{user.additionalDetails}</TableCell>
-                    <TableCell align="right">
-                      <IconButton onClick={() => setEditUser(user)}>
-                        <Pencil size={20} />
-                      </IconButton>
-                      <IconButton 
-                        onClick={() => {
-                          setSelected([user.id]);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 size={20} />
-                      </IconButton>
+                    <TableCell align="center">
+                      <div className="flex justify-center gap-2">
+                        <Tooltip title="Edit User">
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<Pencil size={20} />}
+                            onClick={() => setEditUser(user)}
+                          >
+                            Edit
+                          </Button>
+                        </Tooltip>
+                        <Tooltip title="Delete User">
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<Trash2 size={20} />}
+                            onClick={() => {
+                              setSelected([user.id]);
+                              setIsDeleteDialogOpen(true);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </Tooltip>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         <TablePagination
           component="div"
           count={users.length}
@@ -140,8 +206,8 @@ export const UserTable = ({ users, onEditUser, onDeleteUsers }: UserTableProps) 
         />
 
         {selected.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 bg-red-50 p-2 flex justify-between items-center">
-            <span className="text-red-800">{selected.length} users selected</span>
+          <div className="absolute bottom-0 left-0 right-0 bg-blue-50 p-2 flex justify-between items-center">
+            <span className="text-blue-800">{selected.length} users selected</span>
             <Button
               variant="contained"
               color="error"

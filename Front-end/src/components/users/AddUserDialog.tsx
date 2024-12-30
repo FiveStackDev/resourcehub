@@ -23,18 +23,33 @@ export const AddUserDialog = ({ open, onClose, onAdd }: AddUserDialogProps) => {
   const [email, setEmail] = useState('');
   const [userType, setUserType] = useState<'Admin' | 'User'>('User');
   const [additionalDetails, setAdditionalDetails] = useState('');
+  const [emailError, setEmailError] = useState(false);
+
+  // Regular expression for basic email validation
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate email format
+    if (!emailRegex.test(email)) {
+      setEmailError(true);
+      return;
+    }
+
+    // Call onAdd with user data if email is valid
     onAdd({
       email,
       userType,
       additionalDetails,
       profilePicture: `https://ui-avatars.com/api/?name=${email.split('@')[0]}`,
     });
+
+    // Reset form
     setEmail('');
     setUserType('User');
     setAdditionalDetails('');
+    setEmailError(false);
   };
 
   return (
@@ -49,8 +64,10 @@ export const AddUserDialog = ({ open, onClose, onAdd }: AddUserDialogProps) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              error={emailError} // Display error style if email is invalid
+              helperText={emailError ? "Please enter a valid email address" : ""}
             />
-            
+
             <FormControl fullWidth>
               <InputLabel>User Type</InputLabel>
               <Select

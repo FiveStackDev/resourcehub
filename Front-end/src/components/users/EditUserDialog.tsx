@@ -35,7 +35,7 @@ export const EditUserDialog = ({ user, open, onClose, onSave }: EditUserDialogPr
     e.preventDefault();
     onSave({
       ...user,
-      email,
+      email, // Email will be passed as is without editing
       userType,
       additionalDetails,
     });
@@ -51,8 +51,10 @@ export const EditUserDialog = ({ user, open, onClose, onSave }: EditUserDialogPr
               fullWidth
               label="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              // Disable the email field so it can't be edited
+              disabled
               required
+              helperText="Email cannot be changed"
             />
             
             <FormControl fullWidth>

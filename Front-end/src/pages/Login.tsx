@@ -2,37 +2,40 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Checkbox, FormControlLabel, Box, Typography } from '@mui/material';
 import { Eye, EyeOff } from 'lucide-react';
-import { Logo } from '../components/Logo';
 
 export const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('JhonDoe');
+  const [password, setPassword] = useState('JhonDoe');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, you would validate credentials here
-    // For now, we'll just navigate to the dashboard
     navigate('/dashboard');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-navy-900 to-purple-900 flex">
-      {/* Left side with logo and welcome message */}
+    <div
+      className="min-h-screen bg-cover bg-center flex"
+      style={{ backgroundImage: 'url(/Login.png)' }}
+    >
       <div className="flex-1 flex flex-col justify-center items-center p-12">
-        <Logo />
-        <Typography variant="h2" className="text-white mt-8 mb-4">
-          Welcome Back .!
-        </Typography>
+        <Typography variant="h2" className="text-white mt-8 mb-4"></Typography>
       </div>
 
-      {/* Right side with login form */}
       <div className="flex-1 flex items-center justify-center">
         <Box
           component="form"
           onSubmit={handleSubmit}
-          className="bg-white/10 backdrop-blur-lg p-8 rounded-lg w-96"
+          className="p-8 rounded-lg w-96"
+          sx={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid white',
+            boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+            fontFamily: 'Roboto, sans-serif',
+            fontWeight: 400,
+          }}
         >
           <Typography variant="h4" className="text-white mb-6">
             Sign In
@@ -40,11 +43,13 @@ export const Login = () => {
 
           <TextField
             fullWidth
+            required
             label="Email address"
             variant="outlined"
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            defaultValue="JhonDoe"
             sx={{
               '& .MuiOutlinedInput-root': {
                 color: 'white',
@@ -63,6 +68,7 @@ export const Login = () => {
 
           <TextField
             fullWidth
+            required
             label="Password"
             type={showPassword ? 'text' : 'password'}
             variant="outlined"
@@ -80,6 +86,7 @@ export const Login = () => {
                 </button>
               ),
             }}
+            defaultValue="JhonDoe"
             sx={{
               '& .MuiOutlinedInput-root': {
                 color: 'white',
@@ -118,19 +125,22 @@ export const Login = () => {
             sx={{
               mt: 3,
               mb: 2,
-              bgcolor: 'rgb(147, 197, 253)',
+              bgcolor: '#90CAF9',
+              color: 'black', 
               '&:hover': {
-                bgcolor: 'rgb(96, 165, 250)',
+                bgcolor: '#64B5F6',
               },
+              fontFamily: 'Roboto, sans-serif',
+              fontWeight: 400,
             }}
           >
             SIGN IN
           </Button>
 
           <Typography className="text-white text-center">
-            forget password?{' '}
+            Forget password?{' '}
             <Link to="/forgot-password" className="text-blue-300 hover:underline">
-              reset
+              Reset
             </Link>
           </Typography>
         </Box>

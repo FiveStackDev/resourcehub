@@ -1,335 +1,189 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { DashboardLayout } from '../layouts/DashboardLayout';
-import {
-  Box,
-  Typography,
-  Grid,
-  Button,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  IconButton,
-  Snackbar,
-} from '@mui/material';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { Box, Typography, Grid, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useSnackbar } from 'notistack';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
-export const Meal = () => {
+import { MealCard } from '../components/Meal_Admin/MealCard';
+import { EditMealDialog } from '../components/Meal_Admin/EditMealDialog';
+import { AddMealDialog } from '../components/Meal_Admin/AddMealDialog';
+import { DeleteConfirmationDialog } from '../components/Meal_Admin/DeleteConfirmationDialog';
+
+interface MealItem {
+  id: number;
+  title: string;
+  image: string;
+}
+
+export const Meal: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const mealTimes = [
+  const [mealTimes, setMealTimes] = useState<MealItem[]>([
     { id: 1, title: 'Breakfast', image: '/breakfast.png' },
     { id: 2, title: 'Lunch', image: '/lunch.png' },
     { id: 3, title: 'Dinner', image: '/dinner.png' },
-  ];
+  ]);
 
-  const mealTypes = [
+  const [mealTypes, setMealTypes] = useState<MealItem[]>([
     { id: 1, title: 'Veg', image: '/veg.png' },
     { id: 2, title: 'Fish', image: '/fish.png' },
     { id: 3, title: 'Chicken', image: '/chick.png' },
-  ];
+  ]);
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [currentItem, setCurrentItem] = useState(null); // Track item being edited or deleted
-  const [newTitle, setNewTitle] = useState('');
-  const [newImage, setNewImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
 
-  const handleEditClick = (item) => {
+  const [currentItem, setCurrentItem] = useState<MealItem | null>(null);
+  const [newTitle, setNewTitle] = useState('');
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleEditClick = (item: MealItem) => {
     setCurrentItem(item);
     setNewTitle(item.title);
-    setImagePreview(item.image); // Set the current image for preview
+    setImagePreview(item.image);
     setOpenEditDialog(true);
   };
 
-  const handleDeleteClick = (item) => {
+  const handleDeleteClick = (item: MealItem) => {
     setCurrentItem(item);
     setOpenDeleteDialog(true);
   };
 
   const handleAddClick = () => {
-    setOpenAddDialog(true); // Open the Add New dialog
-  };
-
-  const handleEditClose = () => {
-    setOpenEditDialog(false);
-  };
-
-  const handleAddClose = () => {
-    setOpenAddDialog(false); // Close the Add New dialog
-  };
-
-  const handleDeleteClose = () => {
-    setOpenDeleteDialog(false);
+    setNewTitle('');
+    setImagePreview(null);
+    setNewImage(null);
+    setOpenAddDialog(true);
   };
 
   const handleSaveEdit = () => {
-    // Simulate saving the updated item
-    if (newTitle && currentItem) {
-      // Update the item with the new title and image (in reality, you would update state or make an API call)
+    if (currentItem && newTitle) {
+      const updatedMeals =
+        mealTimes.map((meal) =>
+          meal.id === currentItem.id ? { ...meal, title: newTitle, image: imagePreview || meal.image } : meal
+        ) || [];
+      setMealTimes(updatedMeals);
       enqueueSnackbar(`${newTitle} updated successfully!`, { variant: 'success' });
     }
     setOpenEditDialog(false);
   };
 
   const handleAddNew = () => {
-    // Simulate adding a new meal
     if (newTitle && newImage) {
+      const newMeal: MealItem = {
+        id: Date.now(),
+        title: newTitle,
+        image: URL.createObjectURL(newImage),
+      };
+      setMealTimes([...mealTimes, newMeal]);
       enqueueSnackbar(`${newTitle} added successfully!`, { variant: 'success' });
     }
     setOpenAddDialog(false);
   };
 
   const handleDelete = () => {
-    // Simulate deleting the item
     if (currentItem) {
-      // Remove the item (in reality, you would update state or make an API call to delete)
+      const updatedMeals = mealTimes.filter((meal) => meal.id !== currentItem.id);
+      setMealTimes(updatedMeals);
       enqueueSnackbar(`${currentItem.title} deleted successfully!`, { variant: 'success' });
     }
     setOpenDeleteDialog(false);
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result); // Preview the uploaded image
-        setNewImage(file); // Store the image file
+        setImagePreview(reader.result as string);
+        setNewImage(file);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const renderCards = (items) =>
+  const renderCards = (items: MealItem[]) =>
     items.map((item) => (
-      <Grid item xs={12} sm={6} md={4} key={item.id}>
-        <Card sx={{ borderRadius: 2, boxShadow: 3, width: 232, height: 252 }}>
-          <CardMedia component="img" height="140" image={item.image} alt={item.title} />
-          <CardContent>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              textAlign="center"
-              sx={{
-                mt: -2,
-                mb: -5,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {item.title}
-            </Typography>
-          </CardContent>
-          <CardActions sx={{ justifyContent: 'center', gap: 0.5, paddingBottom: 2 }}>
-            <Button
-              variant="outlined"
-              startIcon={<EditOutlinedIcon />}
-              color="primary"
-              onClick={() => handleEditClick(item)}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<DeleteOutlineOutlinedIcon />}
-              color="error"
-              onClick={() => handleDeleteClick(item)}
-            >
-              Delete
-            </Button>
-          </CardActions>
-        </Card>
+      <Grid item xs={2.4} sm={2.4} md={2.4} key={item.id}>
+        <MealCard item={item} onEditClick={handleEditClick} onDeleteClick={handleDeleteClick} />
       </Grid>
     ));
-
   return (
     <DashboardLayout>
-      <Box
-        sx={{
-          padding: 3,
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        {/* Background Blur Overlay */}
-        {(openEditDialog || openAddDialog || openDeleteDialog) && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backdropFilter: 'blur(10px)',
-              zIndex: 0, // Ensure it's behind the content
-            }}
-          />
-        )}
-
-        <Box sx={{ mb: 4 }}>
+      <Box sx={{ padding: 3 }}>
+        {/* Meal Times Section */}
+        <Box >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
             <Typography variant="h5" fontWeight="bold" color="black">
               Meal Times
             </Typography>
           </Box>
-          <Box sx={{ mt: 2, mb: 5 }}>
-            <Button
+          <Button
               variant="contained"
               color="primary"
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
               endIcon={<AddIcon />}
-              onClick={handleAddClick} // Open the Add New dialog
+              onClick={handleAddClick}
+              sx={{ mb: 4 }}
             >
               Add New
             </Button>
-          </Box>
-          <Grid container spacing={3}>
+          <Grid container spacing={3} sx={{ mb: 2 }}>
             {renderCards(mealTimes)}
           </Grid>
         </Box>
 
+        {/* Meal Types Section */}
         <Box sx={{ mb: 4 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
             <Typography variant="h5" fontWeight="bold" color="black">
               Meal Types
             </Typography>
           </Box>
-          <Box sx={{ mt: 2, mb: 5 }}>
-            <Button
+          <Button
               variant="contained"
               color="primary"
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
               endIcon={<AddIcon />}
+              onClick={handleAddClick}
+              sx={{ mb: 4 }}
             >
               Add New
             </Button>
-          </Box>
           <Grid container spacing={3}>
             {renderCards(mealTypes)}
           </Grid>
         </Box>
 
-        {/* Edit Dialog */}
-        <Dialog
+        {/* Dialogs */}
+        <EditMealDialog
           open={openEditDialog}
-          onClose={handleEditClose}
-          sx={{
-            '& .MuiDialog-paper': { width: '600px', maxWidth: '90%', height: '500px' },
-          }}
-        >
-          <DialogTitle>Edit Meal</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Box sx={{ mb: 3 }}>
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  style={{
-                    width: '140px', // Same size as card image
-                    height: '140px', // Same size as card image
-                    objectFit: 'cover',
-                  }}
-                />
-              )}
-              <input
-                accept="image/*"
-                id="image-upload"
-                type="file"
-                style={{ display: 'none' }}
-                onChange={handleImageChange}
-              />
-              <label htmlFor="image-upload">
-                <IconButton color="primary" component="span">
-                  <PhotoCameraIcon />
-                </IconButton>
-              </label>
-              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                Upload a new image
-              </Typography>
-            </Box>
-            <TextField
-              label="Meal Title"
-              fullWidth
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleEditClose}>Cancel</Button>
-            <Button onClick={handleSaveEdit} color="primary">
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
+          onClose={() => setOpenEditDialog(false)}
+          onSave={handleSaveEdit}
+          title={newTitle}
+          setTitle={setNewTitle}
+          imagePreview={imagePreview}
+          setImagePreview={setImagePreview}
+          handleImageChange={handleImageChange}
+        />
 
-        {/* Add New Dialog */}
-        <Dialog
+        <AddMealDialog
           open={openAddDialog}
-          onClose={handleAddClose}
-          sx={{
-            '& .MuiDialog-paper': { width: '600px', maxWidth: '90%', height: '500px' },
-          }}
-        >
-          <DialogTitle>Add New Meal</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Box sx={{ mb: 3 }}>
-              <input
-                accept="image/*"
-                id="image-upload"
-                type="file"
-                style={{ display: 'none' }}
-                onChange={handleImageChange}
-              />
-              <label htmlFor="image-upload">
-                <IconButton color="primary" component="span">
-                  <PhotoCameraIcon />
-                </IconButton>
-              </label>
-              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                Upload a new image
-              </Typography>
-            </Box>
-            <TextField
-              label="Meal Title"
-              fullWidth
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleAddClose}>Cancel</Button>
-            <Button onClick={handleAddNew} color="primary">
-              Add
-            </Button>
-          </DialogActions>
-        </Dialog>
+          onClose={() => setOpenAddDialog(false)}
+          onAdd={handleAddNew}
+          title={newTitle}
+          setTitle={setNewTitle}
+          imagePreview={imagePreview}
+          setImagePreview={setImagePreview}
+          handleImageChange={handleImageChange}
+        />
 
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={openDeleteDialog} onClose={handleDeleteClose}>
-          <DialogTitle>Delete Meal</DialogTitle>
-          <DialogContent>
-            <Typography>Are you sure you want to delete {currentItem?.title}?</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDeleteClose}>Cancel</Button>
-            <Button onClick={handleDelete} color="error">
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <DeleteConfirmationDialog
+          open={openDeleteDialog}
+          onClose={() => setOpenDeleteDialog(false)}
+          onDelete={handleDelete}
+          item={currentItem}
+        />
       </Box>
     </DashboardLayout>
   );

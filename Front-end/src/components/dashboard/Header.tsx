@@ -1,6 +1,7 @@
 import { Bell, Search } from 'lucide-react';
 import { Logo } from '../Logo';
 import { UserMenu } from './UserMenu';
+import { RoleSwitch } from './RoleSwitch';
 
 export const Header = () => {
   return (
@@ -22,6 +23,7 @@ export const Header = () => {
               className="bg-white/10 rounded-full pl-10 pr-4 py-1.5 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          <RoleSwitch />
           <button className="relative">
             <Bell size={24} />
             <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full w-4 h-4 flex items-center justify-center">

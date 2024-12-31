@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
+import { UserDashboard } from './pages/UserDashboard';
 import { Meal } from './pages/Meal';
 import { Assets } from './pages/Assets';
 import { Maintenance } from './pages/Maintenance';
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/meal" element={<Meal />} />
         <Route path="/assets" element={<Assets />} />
         <Route path="/maintenance" element={<Maintenance />} />

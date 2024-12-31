@@ -10,7 +10,7 @@ const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
 export const Dashboard = () => {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="min-h-screen space-y-6 p-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
@@ -52,9 +52,15 @@ export const Dashboard = () => {
         </div>
 
         {/* Rest of the dashboard content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MealDistributionChart />
-          <ResourceAllocation />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* MealDistributionChart takes up 2 columns on large screens, ResourceAllocation takes up 1 column */}
+          <div className="lg:col-span-2">
+            <MealDistributionChart />
+          </div>
+
+          <div className="lg:col-span-1">
+            <ResourceAllocation />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

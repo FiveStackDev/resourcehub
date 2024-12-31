@@ -23,6 +23,13 @@ const options = {
     legend: {
       position: 'bottom' as const,
     },
+    tooltip: {
+      callbacks: {
+        label: function(tooltipItem: any) {
+          return `${tooltipItem.label}: ${tooltipItem.raw}%`;
+        },
+      },
+    },
   },
 };
 
